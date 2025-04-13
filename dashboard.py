@@ -39,9 +39,15 @@ with col2:
 # Filter data based on seleted date range
 df = df[(df["Date"] >= date1) & (df["Date"] <= date2)].copy()
 
-# Filter data based on category (Admission, Donations, Gift Shop)
-st.sidebar.header("Choose your filter: ")
-category = st.sidebar.multiselect("Pick your Region", df["Category"].unique())
+# # Filter data based on category (Admission, Donations, Gift Shop)
+# st.sidebar.header("Choose your filter: ")
+# category = st.sidebar.multiselect("Pick your Region", df["Category"].unique())
+
+# # Allow user to not select any category
+# if not category:
+#     df2 = df.copy()
+# else:
+#     df2 = df[df["Category"].isin(category)]
 
 # Category seel
 # 1. Get unique categories + "All"
@@ -58,11 +64,7 @@ if selected_category != "All":
 else:
     filtered_df = df.copy()
 
-# Allow user to not select any category
-if not category:
-    df2 = df.copy()
-else:
-    df2 = df[df["Category"].isin(category)]
+
 
 # Convert Time column to datetime if not already
 filtered_df['Time'] = filtered_df['Time'].str.replace(r':(am|pm)', r' \1', case=False, regex=True)
