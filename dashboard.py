@@ -13,9 +13,22 @@ warnings.filterwarnings('ignore')
 # Set layout for page
 st.set_page_config(page_title="NCEC EDA", page_icon=":bar_chart:",layout="wide")
 
-# Set title and format
-st.title(" :bar_chart: North Coast Ecology Centre Dashboard of 2023/2024 Data ")
+
+# Create two columns: one for the logo, one for the title
+col1, col2 = st.columns([1, 5])
+
+with col1:
+    st.image("northcoastlogo.png", width=80)  # Make sure the file extension is correct
+
+with col2:
+    st.markdown("North Coast Ecology Centre Dashboard of 2023/2024 Data")
+
+# Reduce top padding
 st.markdown('<style>div.block-container{padding-top:2rem;}</style>',unsafe_allow_html=True)
+
+
+
+
 
 # Use raw file
 url = 'https://raw.githubusercontent.com/Rainier-Ordinario/Interactive-Dashboard-of-North-Coast-Ecology-Data/refs/heads/main/Square%20Item%20Sale%20Transactions%202023-2024%20-%20Item%20Sales.csv'
