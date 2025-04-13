@@ -45,4 +45,29 @@ df = df[(df["Date"] >= date1) & (df["Date"] <= date2)].copy()
 
 # Filter data based on category (Admission, Donations, Gift Shop)
 st.sidebar.header("Choose your filter: ")
-region = st.sidebar.multiselect("Pick your Region", df["Category"].unique())
+category = st.sidebar.multiselect("Pick your Region", df["Category"].unique())
+
+categories = df['Category'].dropna().unique()
+selected_category = st.selectbox("Select a category", categories)
+
+filtered_df = df[df['Category'] == selected_category]
+
+# Allow user to not select any category
+if not category:
+    df2 = df.copy()
+else:
+    df2 = df[df["Category"].isin(category)]
+
+# Convert Time column to datetime if not already
+filtered_df['Time'] = filtered_df['Time'].str.replace(r':(am|pm)', r' \1', case=False, regex=True)
+
+# Count number of transactions per hour
+filtered_df['Hour'] = pd.to_datetime(filtered_df['Time'], format='%I:%M %p').dt.hour
+
+#Hour counts
+hourly_counts = filtered_df.groupby('Hour').size().reset_index(name='Transaction Count')
+
+#Plot
+fig = px.bar(hourly_counts, x='Hour', y='Transaction Count', title='Busiest Hours')
+st.plotly_chart(fig)
+
