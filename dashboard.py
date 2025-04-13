@@ -27,11 +27,11 @@ Side Bar
 
 # Allow users to select a date
 col1, col2 = st.columns((2))
-df["Order Date"] = pd.to_datetime(df["Order Date"])
+df["Date"] = pd.to_datetime(df["Date"])
 
 # Get the minimum and maximum date
-startDate = pd.to_datetime(df["Order Date"]).min()
-endDate = pd.to_datetime(df["Order Date"]).max()
+startDate = pd.to_datetime(df["Date"]).min()
+endDate = pd.to_datetime(df["Date"]).max()
 
 # Allow user to select a time frame 
 with col1:
@@ -41,8 +41,8 @@ with col2:
     date2 = pd.to_datetime(st.date_input("End Date", endDate))
 
 # Filter data based on seleted date range
-df = df[(df["Order Date"] >= date1) & (df["Order Date"] <= date2)].copy()
+df = df[(df["Date"] >= date1) & (df["Date"] <= date2)].copy()
 
-# Filter data based on region
+# Filter data based on category (Admission, Donations, Gift Shop)
 st.sidebar.header("Choose your filter: ")
-region = st.sidebar.multiselect("Pick your Region", df["Region"].unique())
+region = st.sidebar.multiselect("Pick your Region", df["Category"].unique())
