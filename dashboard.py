@@ -12,22 +12,14 @@ warnings.filterwarnings('ignore')
 
 # Set layout for page
 st.set_page_config(page_title="NCEC EDA", page_icon=":bar_chart:",layout="wide")
-
-
-# Create two columns: one for the logo, one for the title
-col1, col2 = st.columns([1, 5])
-
-with col1:
-    st.image("northcoastlogo.png", width=80)  # Make sure the file extension is correct
-
-with col2:
-    st.markdown("North Coast Ecology Centre Dashboard of 2023/2024 Data")
+st.title(":bar_chart: North Coast Ecology Centre Dashboard")
 
 # Reduce top padding
 st.markdown('<style>div.block-container{padding-top:2rem;}</style>',unsafe_allow_html=True)
 
-
-
+# Logo attempt
+# logo_link = "https://static.wixstatic.com/media/abc0c5_178bdd479f554ac799217ff7b61e3892~mv2.png/v1/fill/w_250,h_250,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/abc0c5_178bdd479f554ac799217ff7b61e3892~mv2.png"
+# st.logo(logo_link, link = "https://static.wixstatic.com/media/abc0c5_178bdd479f554ac799217ff7b61e3892~mv2.png/v1/fill/w_250,h_250,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/abc0c5_178bdd479f554ac799217ff7b61e3892~mv2.png")
 
 
 # Use raw file
