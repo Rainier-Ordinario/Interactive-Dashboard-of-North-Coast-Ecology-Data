@@ -43,10 +43,20 @@ df = df[(df["Date"] >= date1) & (df["Date"] <= date2)].copy()
 st.sidebar.header("Choose your filter: ")
 category = st.sidebar.multiselect("Pick your Region", df["Category"].unique())
 
-categories = df['Category'].dropna().unique()
+# Category seel
+# 1. Get unique categories + "All"
+categories = df['Category'].dropna().unique().tolist()
+categories.sort()
+categories.insert(0, "All")  # Insert "All" at the top
+
+# 2. Category selector
 selected_category = st.selectbox("Select a category", categories)
 
-filtered_df = df[df['Category'] == selected_category]
+# 3. Apply filter
+if selected_category != "All":
+    filtered_df = df[df['Category'] == selected_category]
+else:
+    filtered_df = df.copy()
 
 # Allow user to not select any category
 if not category:
