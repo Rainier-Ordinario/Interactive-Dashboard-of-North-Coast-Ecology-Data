@@ -21,10 +21,6 @@ st.markdown('<style>div.block-container{padding-top:2rem;}</style>',unsafe_allow
 url = 'https://raw.githubusercontent.com/Rainier-Ordinario/Interactive-Dashboard-of-North-Coast-Ecology-Data/refs/heads/main/Square%20Item%20Sale%20Transactions%202023-2024%20-%20Item%20Sales.csv'
 df = pd.read_csv(url, encoding="ISO-8859-1")
 
-"""
-Side Bar
-"""
-
 # Allow users to select a date
 col1, col2 = st.columns((2))
 df["Date"] = pd.to_datetime(df["Date"])
