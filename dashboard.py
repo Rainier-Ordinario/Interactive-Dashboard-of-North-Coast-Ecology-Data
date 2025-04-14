@@ -36,22 +36,26 @@ df["Date"] = pd.to_datetime(df["Date"])
 startDate = pd.to_datetime("2023-01-01").date()
 endDate = pd.to_datetime("2024-12-31").date()
 
+col_buttons = st.columns(3)
+
+if col_buttons[0].button("Only 2023"):
+    startDate = pd.to_datetime("2023-01-01").date()
+    endDate = pd.to_datetime("2023-12-31").date()
+
+if col_buttons[1].button("Only 2024"):
+    startDate = pd.Timestamp("2024-01-01").date()
+    endDate = pd.Timestamp("2024-12-31").date()
+
+if col_buttons[2].button("2023 and 2024"):
+    startDate = pd.Timestamp("2023-01-01").date()
+    endDate = pd.Timestamp("2024-12-31").date()
+
 # Allow user to select a time frame 
 with col1:
     date1 = pd.to_datetime(st.date_input("Start Date", startDate))
    
 with col2:
     date2 = pd.to_datetime(st.date_input("End Date", endDate))
-
-col_buttons = st.columns(2)
-
-if col_buttons[0].button("Only 2023"):
-    startDate = pd.Timestamp("2023-01-01").date()
-    endDate = pd.Timestamp("2023-12-31").date()
-
-if col_buttons[1].button("Only 2024"):
-    startDate = pd.Timestamp("2024-01-01").date()
-    endDate = pd.Timestamp("2024-12-31").date()
 
 
 
@@ -88,7 +92,7 @@ if selected_category != "All":
 else:
     filtered_df = df.copy()
 
-
+    
 
 #TIME COLUMN
 # Convert Time column to datetime if not already
