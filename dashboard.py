@@ -71,16 +71,27 @@ else:
 
 
 
+
 # Convert Time column to datetime if not already
 filtered_df['Time'] = filtered_df['Time'].str.replace(r':(am|pm)', r' \1', case=False, regex=True)
+filtered_df['Time'] = pd.to_datetime(filtered_df['Time'], format='%I:%M %p')
 
-# Count number of transactions per hour
-filtered_df['Hour'] = pd.to_datetime(filtered_df['Time'], format='%I:%M %p').dt.hour
+# Extract hour and format for label
+filtered_df['Hour'] = filtered_df['Time'].dt.hour
+filtered_df['Hour Label'] = filtered_df['Time'].dt.strftime('%I:00 %p')  # e.g., 01:00 PM
 
-#Hour counts
-hourly_counts = filtered_df.groupby('Hour').size().reset_index(name='Transaction Count')
+# Group by hour and get counts
+hourly_counts = filtered_df.groupby(['Hour', 'Hour Label']).size().reset_index(name='Transaction Count')
 
-#Plot
-fig = px.bar(hourly_counts, x='Hour', y='Transaction Count', title='Busiest Hours')
-st.plotly_chart(fig)
+# Sort by actual hour
+hourly_counts = hourly_counts.sort_values('Hour')
 
+# Plot using formatted labels
+hourly_fig = px.bar(hourly_counts, x='Hour Label', y='Transaction Count', title='Busiest Hours')
+st.plotly_chart(hourly_fig)
+
+# Allow user to download hourly counts data
+with st.expander("View Data of Hourly Counts:"):
+    st.write(hourly_counts[['Hour Label', 'Transaction Count']].style.background_gradient(cmap="Blues"))
+    csv = hourly_counts[['Hour Label', 'Transaction Count']].to_csv(index=False).encode("utf-8")
+    st.download_button('Download Data', data=csv, file_name="TimeSeries.csv", mime='text/csv')
