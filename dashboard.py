@@ -27,26 +27,24 @@ url = 'https://raw.githubusercontent.com/Rainier-Ordinario/Interactive-Dashboard
 df = pd.read_csv(url, encoding="ISO-8859-1")
 
 # Allow users to select a date
-col1, col2 = st.columns((2))
+col1, col2 = st.sidebar.columns((2))
 df["Date"] = pd.to_datetime(df["Date"])
-
-
 
 # Set initial values
 startDate = pd.to_datetime("2023-01-01").date()
 endDate = pd.to_datetime("2024-12-31").date()
 
-col_buttons = st.columns(3)
+col_buttons = st.sidebar.columns(3)
 
-if col_buttons[0].button("Only 2023"):
+if col_buttons[0].button("2023"):
     startDate = pd.to_datetime("2023-01-01").date()
     endDate = pd.to_datetime("2023-12-31").date()
 
-if col_buttons[1].button("Only 2024"):
+if col_buttons[1].button("2024"):
     startDate = pd.Timestamp("2024-01-01").date()
     endDate = pd.Timestamp("2024-12-31").date()
 
-if col_buttons[2].button("2023 and 2024"):
+if col_buttons[2].button("23/24"):
     startDate = pd.Timestamp("2023-01-01").date()
     endDate = pd.Timestamp("2024-12-31").date()
 
@@ -57,34 +55,16 @@ with col1:
 with col2:
     date2 = pd.to_datetime(st.date_input("End Date", endDate))
 
-
-
-
 # Filter data based on seleted date range
 df = df[(df["Date"] >= date1) & (df["Date"] <= date2)].copy()
 
-
-# Create two buttons to update the dates for 2023 and 2024
-
-
-# # Filter data based on category (Admission, Donations, Gift Shop)
-# st.sidebar.header("Choose your filter: ")
-# category = st.sidebar.multiselect("Pick your Region", df["Category"].unique())
-
-# # Allow user to not select any category
-# if not category:
-#     df2 = df.copy()
-# else:
-#     df2 = df[df["Category"].isin(category)]
-
-# Category seel
 # 1. Get unique categories + "All"
 categories = df['Category'].dropna().unique().tolist()
 categories.sort()
 categories.insert(0, "All")  # Insert "All" at the top
 
 # 2. Category selector
-selected_category = st.selectbox("Select a category", categories)
+selected_category = st.sidebar.selectbox("Select a category", categories)
 
 # 3. Apply filter
 if selected_category != "All":
@@ -159,3 +139,5 @@ with st.expander("View Data of Daily Counts:"):
     st.dataframe(day_counts.style.background_gradient(cmap="Greens"))
     csv = day_counts.to_csv(index=False).encode("utf-8")
     st.download_button("Download Data", data=csv, file_name="BusiestDays.csv", mime="text/csv")
+
+#----------------------------------------------------------------
