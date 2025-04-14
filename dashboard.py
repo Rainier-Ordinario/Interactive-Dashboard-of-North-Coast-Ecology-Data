@@ -72,8 +72,6 @@ if selected_category != "All":
 else:
     filtered_df = df.copy()
 
-    
-
 #TIME COLUMN
 # Convert Time column to datetime if not already
 filtered_df['Time'] = filtered_df['Time'].str.replace(r':(am|pm)', r' \1', case=False, regex=True)
@@ -99,15 +97,11 @@ with st.expander("View Data of Hourly Counts:"):
     csv = hourly_counts[['Hour Label', 'Transaction Count']].to_csv(index=False).encode("utf-8")
     st.download_button('Download Data', data=csv, file_name="HourlyCounts.csv", mime='text/csv')
 
-
-
 # --- Apply Filters ---
 # Filter by date range
 # Filter data based on the selected date range by converting the selected dates to Pandas Timestamps
 filtered_df = df[(df["Date"] >= pd.Timestamp(startDate)) & 
                  (df["Date"] <= pd.Timestamp(endDate))].copy()
-
-
 
 # Filter by category if not "All"
 if selected_category != "All":
@@ -141,3 +135,7 @@ with st.expander("View Data of Daily Counts:"):
     st.download_button("Download Data", data=csv, file_name="BusiestDays.csv", mime="text/csv")
 
 #----------------------------------------------------------------
+# Use Brandie's Values
+
+url1 = 'https://raw.githubusercontent.com/Rainier-Ordinario/Interactive-Dashboard-of-North-Coast-Ecology-Data/refs/heads/main/Daily%20Admissions%20and%20Cash%20Deposits%202023%20and%202024%20-%20Original%20Values.csv'
+df1 = pd.read_csv(url1, encoding="ISO-8859-1")
