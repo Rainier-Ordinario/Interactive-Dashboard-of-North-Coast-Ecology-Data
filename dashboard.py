@@ -22,9 +22,18 @@ st.markdown('<style>div.block-container{padding-top:2rem;}</style>',unsafe_allow
 # st.logo(logo_link, link = "https://static.wixstatic.com/media/abc0c5_178bdd479f554ac799217ff7b61e3892~mv2.png/v1/fill/w_250,h_250,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/abc0c5_178bdd479f554ac799217ff7b61e3892~mv2.png")
 
 
-# Use raw file
+# Use raw files
 url = 'https://raw.githubusercontent.com/Rainier-Ordinario/Interactive-Dashboard-of-North-Coast-Ecology-Data/refs/heads/main/Square%20Item%20Sale%20Transactions%202023-2024%20-%20Item%20Sales.csv'
+url1 = 'https://raw.githubusercontent.com/Rainier-Ordinario/Interactive-Dashboard-of-North-Coast-Ecology-Data/refs/heads/main/Daily%20Admissions%20and%20Cash%20Deposits%202023%20and%202024%20-%20Original%20Values.csv'
+
 df = pd.read_csv(url, encoding="ISO-8859-1")
+df1 = pd.read_csv(url1, encoding="ISO-8859-1")
+
+# Merge datasets
+df_merge = pd.concat([df, df1], ignore_index=True)
+
+# Ensure 'Date' column exists and is in datetime format
+df_merge["Date"] = pd.to_datetime(df_merge["Date"], errors='coerce')
 
 # Allow users to select a date
 col1, col2 = st.sidebar.columns((2))
@@ -33,6 +42,7 @@ df["Date"] = pd.to_datetime(df["Date"])
 # Set initial values
 startDate = pd.to_datetime("2023-01-01").date()
 endDate = pd.to_datetime("2024-12-31").date()
+
 
 col_buttons = st.sidebar.columns(3)
 
@@ -137,5 +147,3 @@ with st.expander("View Data of Daily Counts:"):
 #----------------------------------------------------------------
 # Use Brandie's Values
 
-url1 = 'https://raw.githubusercontent.com/Rainier-Ordinario/Interactive-Dashboard-of-North-Coast-Ecology-Data/refs/heads/main/Daily%20Admissions%20and%20Cash%20Deposits%202023%20and%202024%20-%20Original%20Values.csv'
-df1 = pd.read_csv(url1, encoding="ISO-8859-1")
