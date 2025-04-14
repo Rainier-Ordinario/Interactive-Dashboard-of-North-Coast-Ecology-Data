@@ -117,7 +117,7 @@ st.plotly_chart(hourly_fig)
 with st.expander("View Data of Hourly Counts:"):
     st.write(hourly_counts[['Hour Label', 'Transaction Count']].style.background_gradient(cmap="Blues"))
     csv = hourly_counts[['Hour Label', 'Transaction Count']].to_csv(index=False).encode("utf-8")
-    st.download_button('Download Data', data=csv, file_name="TimeSeries.csv", mime='text/csv')
+    st.download_button('Download Data', data=csv, file_name="HourlyCounts.csv", mime='text/csv')
 
 
 
