@@ -30,19 +30,38 @@ df = pd.read_csv(url, encoding="ISO-8859-1")
 col1, col2 = st.columns((2))
 df["Date"] = pd.to_datetime(df["Date"])
 
-# Get the minimum and maximum date
-startDate = pd.to_datetime(df["Date"]).min()
-endDate = pd.to_datetime(df["Date"]).max()
+
+
+# Set initial values
+startDate = pd.to_datetime("2023-01-01").date()
+endDate = pd.to_datetime("2024-12-31").date()
 
 # Allow user to select a time frame 
 with col1:
     date1 = pd.to_datetime(st.date_input("Start Date", startDate))
-
+   
 with col2:
     date2 = pd.to_datetime(st.date_input("End Date", endDate))
 
+col_buttons = st.columns(2)
+
+if col_buttons[0].button("Only 2023"):
+    startDate = pd.Timestamp("2023-01-01").date()
+    endDate = pd.Timestamp("2023-12-31").date()
+
+if col_buttons[1].button("Only 2024"):
+    startDate = pd.Timestamp("2024-01-01").date()
+    endDate = pd.Timestamp("2024-12-31").date()
+
+
+
+
 # Filter data based on seleted date range
 df = df[(df["Date"] >= date1) & (df["Date"] <= date2)].copy()
+
+
+# Create two buttons to update the dates for 2023 and 2024
+
 
 # # Filter data based on category (Admission, Donations, Gift Shop)
 # st.sidebar.header("Choose your filter: ")
@@ -71,7 +90,7 @@ else:
 
 
 
-
+#TIME COLUMN
 # Convert Time column to datetime if not already
 filtered_df['Time'] = filtered_df['Time'].str.replace(r':(am|pm)', r' \1', case=False, regex=True)
 filtered_df['Time'] = pd.to_datetime(filtered_df['Time'], format='%I:%M %p')
@@ -95,3 +114,44 @@ with st.expander("View Data of Hourly Counts:"):
     st.write(hourly_counts[['Hour Label', 'Transaction Count']].style.background_gradient(cmap="Blues"))
     csv = hourly_counts[['Hour Label', 'Transaction Count']].to_csv(index=False).encode("utf-8")
     st.download_button('Download Data', data=csv, file_name="TimeSeries.csv", mime='text/csv')
+
+
+
+# --- Apply Filters ---
+# Filter by date range
+# Filter data based on the selected date range by converting the selected dates to Pandas Timestamps
+filtered_df = df[(df["Date"] >= pd.Timestamp(startDate)) & 
+                 (df["Date"] <= pd.Timestamp(endDate))].copy()
+
+
+
+# Filter by category if not "All"
+if selected_category != "All":
+    filtered_df = filtered_df[filtered_df["Category"] == selected_category]
+
+# --- Aggregate Data: Busiest Days ---
+# Extract day of the week from the Date.
+filtered_df["Day"] = filtered_df["Date"].dt.day_name()
+
+# Count transactions per weekday.
+day_counts = filtered_df["Day"].value_counts().reindex(
+    ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+).reset_index()
+day_counts.columns = ["Day", "Transaction Count"]
+
+# --- Visualization ---
+if not day_counts.empty:
+    day_fig = px.bar(day_counts,
+                     x="Day",
+                     y="Transaction Count",
+                     title="Busiest Days of the Week",
+                     labels={"Day": "Day of the Week", "Transaction Count": "Number of Transactions"})
+    st.plotly_chart(day_fig)
+else:
+    st.write("No data available for the selected filters.")
+
+# --- Data Download Option ---
+with st.expander("View Data of Daily Counts:"):
+    st.dataframe(day_counts.style.background_gradient(cmap="Greens"))
+    csv = day_counts.to_csv(index=False).encode("utf-8")
+    st.download_button("Download Data", data=csv, file_name="BusiestDays.csv", mime="text/csv")
