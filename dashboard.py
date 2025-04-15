@@ -97,7 +97,7 @@ hourly_counts = filtered_df.groupby(['Hour', 'Hour Label']).size().reset_index(n
 hourly_counts = hourly_counts.sort_values('Hour')
 
 # Plot using formatted labels
-hourly_fig = px.bar(hourly_counts, x='Hour Label', y='Transaction Count', title='Busiest Hours')
+hourly_fig = px.bar(hourly_counts, x='Hour Label', y='Transaction Count', title='Busiest Hours by Item Sales')
 st.plotly_chart(hourly_fig)
 
 # Allow user to download hourly counts data
@@ -131,7 +131,7 @@ if not day_counts.empty:
     day_fig = px.bar(day_counts,
                      x="Day",
                      y="Transaction Count",
-                     title="Busiest Days of the Week",
+                     title="Busiest Days of the Week by Item Sales",
                      labels={"Day": "Day of the Week", "Transaction Count": "Number of Transactions"})
     st.plotly_chart(day_fig)
 else:
