@@ -43,7 +43,6 @@ df["Date"] = pd.to_datetime(df["Date"])
 startDate = pd.to_datetime("2023-01-01").date()
 endDate = pd.to_datetime("2024-12-31").date()
 
-
 col_buttons = st.sidebar.columns(3)
 
 if col_buttons[0].button("2023"):
@@ -147,3 +146,32 @@ with st.expander("View Data of Daily Counts:"):
 #----------------------------------------------------------------
 # Use Brandie's Values
 
+# Convert Date column to datetime
+df1['Date'] = pd.to_datetime(df1['Date'])
+
+# Add a new column for Day of Week
+df1['Day of Week'] = df1['Date'].dt.day_name()
+
+# Group by Day of Week and sum total visitors
+visitors_by_day = df1.groupby('Day of Week')['Total Visitors'].sum().reset_index()
+
+# Optional: sort days in order (Monday → Sunday)
+days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+visitors_by_day['Day of Week'] = pd.Categorical(visitors_by_day['Day of Week'], categories=days_order, ordered=True)
+visitors_by_day = visitors_by_day.sort_values('Day of Week')
+
+# Plot
+fig = px.bar(visitors_by_day,
+             x='Day of Week',
+             y='Total Visitors',
+             title='Total Visitors by Day of the Week',
+             labels={'Total Visitors': 'Total Visitors'},
+             color='Total Visitors')
+
+st.plotly_chart(fig)
+
+# --- Data Download Option ---
+with st.expander("View Data of Total Visitors:"):
+    st.dataframe(day_counts.style.background_gradient(cmap="Greens"))
+    csv = day_counts.to_csv(index=False).encode("utf-8")
+    st.download_button("Download Data", data=csv, file_name="TotalVisitors.csv", mime="text/csv")
