@@ -152,6 +152,9 @@ df1['Date'] = pd.to_datetime(df1['Date'])
 # Add a new column for Day of Week
 df1['Day of Week'] = df1['Date'].dt.day_name()
 
+# Filter data based on seleted date range
+df1 = df1[(df1["Date"] >= date1) & (df1["Date"] <= date2)].copy()
+
 # Group by Day of Week and sum total visitors
 visitors_by_day = df1.groupby('Day of Week')['Total Visitors'].sum().reset_index()
 
