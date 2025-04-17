@@ -12,7 +12,7 @@ warnings.filterwarnings('ignore')
 
 # Set layout for page
 st.set_page_config(page_title="NCEC EDA", page_icon=":bar_chart:",layout="wide")
-st.title(":bar_chart: North Coast Ecology Centre Dashboard")
+st.title(":bar_chart: North Coast Ecology Centre Interactive Dashboard")
 
 # Reduce top padding
 st.markdown('<style>div.block-container{padding-top:2rem;}</style>',unsafe_allow_html=True)
@@ -31,7 +31,6 @@ url1 = 'https://raw.githubusercontent.com/Rainier-Ordinario/Interactive-Dashboar
 
 # Initialize dataframes
 df, df1 = None, None
-
 
 # Handle file uploads
 if uploaded_files:
@@ -195,7 +194,6 @@ visitor_categories = ['Total Visitors', 'Cruise', 'Local', 'Northwest BC', 'Othe
 
 # Let user pick a category
 selected_category = st.selectbox("Select visitor category", visitor_categories)
-
 # Group by Day of Week and sum based on selected category
 visitors_by_day = df1.groupby('Day of Week')[selected_category].sum().reset_index()
 
@@ -220,4 +218,79 @@ with st.expander("View Data of Total Visitors:"):
     csv = day_counts.to_csv(index=False).encode("utf-8")
     st.download_button("Download Data", data=csv, file_name="TotalVisitors.csv", mime="text/csv")
 
-#DEV
+# First filter the data
+filtered_df = df[
+    df['Category'].isin(['Gift Shop', 'None']) & 
+    (df['Item'].str.lower() != 'custom amount')
+].copy()
+
+# THEN convert Qty to numeric (after filtering)
+filtered_df['Qty'] = filtered_df['Qty'].astype(str)  # Ensure it's a string
+
+def convert_qty(qty_str):
+    try:
+        if '+' in qty_str:
+            return sum(float(x) for x in qty_str.split('+'))
+        return float(qty_str)
+    except:
+        return 0.0  # or np.nan
+
+filtered_df['Qty'] = filtered_df['Qty'].apply(convert_qty)  # Fix addition issue
+
+# Group items
+def group_items(name):
+    name = name.lower()
+    if "sticker" in name:
+        return "Stickers"
+    elif "zipper pull" in name:
+        return "Zipper Pulls"
+    elif "shirt" in name:
+        return "Shirts"
+    elif "stained glass" in name:
+        return "Stained Glass"
+    elif "magnet" in name:
+        return "Magnets"
+    elif "articulated sperm whale" in name:
+        return "Articulated Sperm Whale"
+    elif "guide pam" in name:
+        return "Guide Pamphlets"
+    else:
+        return name.title()
+
+# Filter
+filtered_df['Grouped Item'] = filtered_df['Item'].apply(group_items)
+
+# Sum up the quantities
+item_sales = filtered_df.groupby('Grouped Item', as_index=False)['Qty'].sum()
+item_sales = item_sales.sort_values('Qty', ascending=False)
+
+# Create bar chart
+fig = px.bar(item_sales,
+             x='Grouped Item',
+             y='Qty',
+             title='Gift Shop Item Sales',
+             text='Qty',
+             color='Grouped Item')
+
+# Plot bar chart
+fig.update_layout(xaxis_title='Item', yaxis_title='Quantity Sold')
+st.plotly_chart(fig)
+
+# Create a pie chart
+fig_pie = px.pie(
+    item_sales,
+    names='Grouped Item',
+    values='Qty',
+    title='Gift Shop Sales Distribution',
+    hole=0.3,  # Optional: Makes it a donut chart (set to 0 for normal pie)
+)
+
+# Improve label readability
+fig_pie.update_traces(
+    textposition='inside',
+    textinfo='percent+label',  # Show % and item name
+    insidetextorientation='radial'  # Better for crowded pies
+)
+
+# Display the pie chart
+st.plotly_chart(fig_pie)
