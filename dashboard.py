@@ -187,3 +187,5 @@ with st.expander("View Data of Total Visitors:"):
     st.dataframe(visitors_by_day.style.background_gradient(cmap="Greens"))
     csv = day_counts.to_csv(index=False).encode("utf-8")
     st.download_button("Download Data", data=csv, file_name="TotalVisitors.csv", mime="text/csv")
+
+#DEVV
