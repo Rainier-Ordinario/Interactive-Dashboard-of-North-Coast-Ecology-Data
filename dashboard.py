@@ -276,7 +276,7 @@ fig = px.bar(item_sales,
 fig.update_layout(xaxis_title='Item', yaxis_title='Quantity Sold')
 st.plotly_chart(fig)
 
-# Create a pie chart
+# Plot a pie chart
 fig_pie = px.pie(
     item_sales,
     names='Grouped Item',
