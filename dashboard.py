@@ -59,6 +59,39 @@ if df1 is None:
     df1 = pd.read_csv(url1, encoding="ISO-8859-1")
     st.write("Loaded: Daily Admission and Cash Deposits 2023/2024")
     
+# Add custom CSS to set different background colors
+st.markdown("""
+    <style>
+        /* Top section background */
+        .top-section {
+            background-color: #e0f7fa;
+            padding: 28px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Bottom section background */
+        .bottom-section {
+            background-color: #fbe9e7;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        .top-text {
+            font-size: 30px;
+            font-weight: bold;
+            color: #006064;
+            text-align: center;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+# --- Top Section ---
+st.markdown("""
+    <div class="top-section">
+        <div class="top-text">📦 Square Transactions</div>
+    </div>
+""", unsafe_allow_html=True)
 
 # Merge datasets
 df_merge = pd.concat([df, df1], ignore_index=True)
@@ -177,7 +210,80 @@ with st.expander("View Data of Daily Counts:"):
     csv = day_counts.to_csv(index=False).encode("utf-8")
     st.download_button("Download Data", data=csv, file_name="BusiestDays.csv", mime="text/csv")
 
-#----------------------------------------------------------------
+# Create graph for money vs time
+# Let user choose grouping: Monthly or Yearly
+group_option = st.selectbox("Group by", ["Monthly", "Yearly"])
+
+if group_option == "Monthly":
+    filtered_df['Period'] = filtered_df['Date'].dt.to_period('M').astype(str)
+    title = "Net Sales by Month Based on Item Sales (Square Transactions)"
+elif group_option == "Yearly":
+    filtered_df['Period'] = filtered_df['Date'].dt.year.astype(str)
+    title = "Net Sales by Year Based on Item Sales (Square Transactions)"
+
+
+# Clean 'Net Sales' column (remove $ and commas) and convert to float
+filtered_df['Net Sales'] = filtered_df['Net Sales'].replace('[\$,]', '', regex=True).astype(float)
+
+# Group and sum net sales
+sales_by_period = filtered_df.groupby('Period')['Net Sales'].sum().reset_index()
+
+# Plot bar chart
+fig = px.bar(
+    sales_by_period,
+    x='Period',
+    y='Net Sales',
+    title=title,
+    labels={'Period': 'Time Period', 'Net Sales': 'Net Sales ($)'},
+    color='Net Sales',
+    text_auto='.2s'
+)
+
+fig.update_layout(
+    xaxis_title='Period',
+    yaxis_title='Net Sales ($)',
+    xaxis_tickangle=-45
+)
+
+st.plotly_chart(fig)
+
+'''
+---------------------------------------------------------------------------------------------------
+'''
+# Add custom CSS to set different background colors
+st.markdown("""
+    <style>
+        /* Top section background */
+        .top-section {
+            background-color: #e0f7fa;
+            padding: 28px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Bottom section background */
+        .bottom-section {
+            background-color: #fbe9e7;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        .top-text {
+            font-size: 30px;
+            font-weight: bold;
+            color: #006064;
+            text-align: center;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+# --- Top Section ---
+st.markdown("""
+    <div class="top-section">
+        <div class="top-text">Original Transactions</div>
+    </div>
+""", unsafe_allow_html=True)
+
 # Use Brandie's Values
 
 # Convert Date column to datetime
@@ -276,7 +382,7 @@ fig = px.bar(item_sales,
 fig.update_layout(xaxis_title='Item', yaxis_title='Quantity Sold')
 st.plotly_chart(fig)
 
-# Plot a pie chart
+# Plot 2a pie chart
 fig_pie = px.pie(
     item_sales,
     names='Grouped Item',
