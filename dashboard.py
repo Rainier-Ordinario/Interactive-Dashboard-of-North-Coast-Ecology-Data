@@ -247,6 +247,23 @@ fig.update_layout(
 
 st.plotly_chart(fig)
 
+# Optional: ensure 'Payment Method' column exists
+if 'Payment Method' in df.columns:
+    # Count each payment method
+    payment_counts = df['Payment Method'].value_counts().reset_index()
+    payment_counts.columns = ['Payment Method', 'Count']
+
+    # Create a pie chart
+    fig = px.pie(payment_counts, 
+                 names='Payment Method', 
+                 values='Count',
+                 title='Payment Method Distribution',
+                 color_discrete_sequence=px.colors.sequential.RdBu)
+
+    st.plotly_chart(fig)
+else:
+    st.warning("Payment Method column not found in the dataset.")
+
 '''
 ---------------------------------------------------------------------------------------------------
 '''
