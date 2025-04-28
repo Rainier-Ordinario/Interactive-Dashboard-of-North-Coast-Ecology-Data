@@ -316,7 +316,7 @@ df1['Day of Week'] = df1['Date'].dt.day_name()
 df1 = df1[(df1["Date"] >= date1) & (df1["Date"] <= date2)].copy()
 
 # Define visitor categories
-visitor_categories = ['Total Visitors', 'Cruise', 'Local', 'Northwest BC', 'Other', 'D/n pay - Family Pass']
+visitor_categories = ['Total Visitors', 'Cruise', 'Local', 'Northwest BC', 'Other', 'D/n pay - Family Pass', 'Unwilling to pay/walked away']
 
 # Define special event mappings (Display Text -> DataFrame Column)
 special_event_mapping = {
@@ -442,3 +442,32 @@ fig_pie.update_traces(
 
 # Display the pie chart
 st.plotly_chart(fig_pie)
+
+# --- Define your visitor type columns ---
+visitor_type_columns = ['Babies (0-3yrs)', 'Child (4-12 yrs)', 'Youth (13-18 yrs)', 'Adult/ Seniors', 'Sponsors']
+
+# --- Melt the dataframe to a long format ---
+visitor_types_df = df1[visitor_type_columns].copy()
+visitor_types_melted = visitor_types_df.melt(var_name='Visitor Type', value_name='Count')
+
+# --- Group and sum counts ---
+visitor_types_summary = visitor_types_melted.groupby('Visitor Type')['Count'].sum().reset_index()
+
+# --- Plot a bar chart ---
+fig = px.bar(
+    visitor_types_summary,
+    x='Visitor Type',
+    y='Count',
+    color='Visitor Type',
+    title='Total Visitors by Type',
+    labels={'Count': 'Number of Visitors'},
+    text_auto='.2s'
+)
+
+fig.update_layout(
+    xaxis_title='Visitor Type',
+    yaxis_title='Total Count',
+    xaxis_tickangle=-45
+)
+
+st.plotly_chart(fig)
