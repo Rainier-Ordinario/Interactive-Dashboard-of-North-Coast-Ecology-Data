@@ -21,7 +21,10 @@ st.markdown('<style>div.block-container{padding-top:2rem;}</style>',unsafe_allow
 logo_link = "https://static.wixstatic.com/media/abc0c5_178bdd479f554ac799217ff7b61e3892~mv2.png/v1/fill/w_250,h_250,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/abc0c5_178bdd479f554ac799217ff7b61e3892~mv2.png"
 st.logo(logo_link, size="large", link = "https://www.northcoastecologycentresociety.com/")
 
-st.write("When uploading files: upload square file first, then admission file second")
+st.write("When uploading files: \n"
+         "1. Upload square file first, \n"
+         "2. Upload admission file second")
+
 # File upload section
 uploaded_files = st.file_uploader(":file_folder: Upload up to 2 files", type=["csv", "txt", "xlsx"], accept_multiple_files=True)
 
@@ -309,18 +312,40 @@ df1['Date'] = pd.to_datetime(df1['Date'])
 # Add a new column for Day of Week
 df1['Day of Week'] = df1['Date'].dt.day_name()
 
-# Filter data based on seleted date range
+# Filter data based on selected date range
 df1 = df1[(df1["Date"] >= date1) & (df1["Date"] <= date2)].copy()
 
-# Define available visitor categories (including total)
+# Define visitor categories
 visitor_categories = ['Total Visitors', 'Cruise', 'Local', 'Northwest BC', 'Other', 'D/n pay - Family Pass']
 
-# Let user pick a category
+# Define special event mappings (Display Text -> DataFrame Column)
+special_event_mapping = {
+    'All Days': None,
+    'Long Weekend': 'Long Weekend',
+    'Sponsorship Weekend': 'Sponsorship Weekend',
+    'Cruise Ship Day': 'Cruise Ship Day',
+    'Rainy Day': 'Rainy Day',
+    'Classroom Visits': 'Classroom Visits'
+}
+
+# Select visitor category
 selected_category = st.selectbox("Select visitor category", visitor_categories)
+
+# User selects special event
+selected_event_display = st.selectbox("Filter by special event", list(special_event_mapping.keys()))
+selected_event_column = special_event_mapping[selected_event_display]
+
+# Apply event filter
+if selected_event_column:
+    if selected_event_column in df1.columns:
+        df1 = df1[df1[selected_event_column] == 'Y']
+    else:
+        st.warning(f"Column '{selected_event_column}' not found in data!")
+
 # Group by Day of Week and sum based on selected category
 visitors_by_day = df1.groupby('Day of Week')[selected_category].sum().reset_index()
 
-# Sort days in week order
+# Sort days properly
 days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 visitors_by_day['Day of Week'] = pd.Categorical(visitors_by_day['Day of Week'], categories=days_order, ordered=True)
 visitors_by_day = visitors_by_day.sort_values('Day of Week')
@@ -329,7 +354,7 @@ visitors_by_day = visitors_by_day.sort_values('Day of Week')
 fig = px.bar(visitors_by_day,
              x='Day of Week',
              y=selected_category,
-             title=f'{selected_category} by Day of the Week',
+             title=f'{selected_category} by Day of the Week' + (f' ({selected_event_display})' if selected_event_display != 'All Days' else ''),
              labels={selected_category: 'Total Visitors'},
              color=selected_category)
 
@@ -338,7 +363,7 @@ st.plotly_chart(fig)
 # --- Data Download Option ---
 with st.expander("View Data of Total Visitors:"):
     st.dataframe(visitors_by_day.style.background_gradient(cmap="Greens"))
-    csv = day_counts.to_csv(index=False).encode("utf-8")
+    csv = visitors_by_day.to_csv(index=False).encode("utf-8")
     st.download_button("Download Data", data=csv, file_name="TotalVisitors.csv", mime="text/csv")
 
 # First filter the data
