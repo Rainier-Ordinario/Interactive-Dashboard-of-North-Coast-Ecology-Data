@@ -132,9 +132,9 @@ if col_buttons[1].button("2024"):
     startDate = pd.Timestamp("2024-01-01").date()
     endDate = pd.Timestamp("2024-12-31").date()
 
-if col_buttons[2].button("23/24"):
-    startDate = pd.Timestamp("2023-01-01").date()
-    endDate = pd.Timestamp("2024-12-31").date()
+if col_buttons[2].button("All"):
+    startDate = pd.Timestamp("2022-01-01").date()
+    endDate = pd.Timestamp("2100-12-31").date()
 
 # Allow user to select a time frame 
 with col1:
