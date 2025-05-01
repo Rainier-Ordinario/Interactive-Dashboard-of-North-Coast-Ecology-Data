@@ -17,9 +17,18 @@ st.title(":bar_chart: North Coast Ecology Centre Interactive Dashboard")
 # Reduce top padding
 st.markdown('<style>div.block-container{padding-top:2rem;}</style>',unsafe_allow_html=True)
 
-# Logo 
 logo_link = "https://static.wixstatic.com/media/abc0c5_178bdd479f554ac799217ff7b61e3892~mv2.png/v1/fill/w_250,h_250,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/abc0c5_178bdd479f554ac799217ff7b61e3892~mv2.png"
-st.logo(logo_link, size="large", link = "https://www.northcoastecologycentresociety.com/")
+
+st.sidebar.markdown(
+    f"""
+    <div style="margin-top: -70px; margin-bottom: 20px; margin-left: 30px;">
+        <a href="https://www.northcoastecologycentresociety.com/" target="_blank">
+            <img src="{logo_link}" width="180" />
+        </a>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 st.write("When uploading files: \n"
          "1. Upload square file first, \n"
@@ -92,7 +101,7 @@ st.markdown("""
 # --- Top Section ---
 st.markdown("""
     <div class="top-section">
-        <div class="top-text">📦 Square Transactions</div>
+        <div class="top-text">Square Transactions</div>
     </div>
 """, unsafe_allow_html=True)
 
@@ -143,7 +152,7 @@ categories.sort()
 categories.insert(0, "All")  # Insert "All" at the top
 
 # 2. Category selector
-selected_category = st.sidebar.selectbox("Select a category", categories)
+selected_category = st.selectbox("Select a category", categories)
 
 # 3. Apply filter
 if selected_category != "All":
@@ -267,6 +276,83 @@ if 'Payment Method' in df.columns:
 else:
     st.warning("Payment Method column not found in the dataset.")
 
+# First filter the data
+filtered_df = df[
+    df['Category'].isin(['Gift Shop', 'None']) & 
+    (df['Item'].str.lower() != 'custom amount')
+].copy()
+
+# THEN convert Qty to numeric (after filtering)
+filtered_df['Qty'] = filtered_df['Qty'].astype(str)  # Ensure it's a string
+
+def convert_qty(qty_str):
+    try:
+        if '+' in qty_str:
+            return sum(float(x) for x in qty_str.split('+'))
+        return float(qty_str)
+    except:
+        return 0.0  # or np.nan
+
+filtered_df['Qty'] = filtered_df['Qty'].apply(convert_qty)  # Fix addition issue
+
+# Group items
+def group_items(name):
+    name = name.lower()
+    if "sticker" in name:
+        return "Stickers"
+    elif "zipper pull" in name:
+        return "Zipper Pulls"
+    elif "shirt" in name:
+        return "Shirts"
+    elif "stained glass" in name:
+        return "Stained Glass"
+    elif "magnet" in name:
+        return "Magnets"
+    elif "articulated sperm whale" in name:
+        return "Articulated Sperm Whale"
+    elif "guide pam" in name:
+        return "Guide Pamphlets"
+    else:
+        return name.title()
+
+# Filter
+filtered_df['Grouped Item'] = filtered_df['Item'].apply(group_items)
+
+# Sum up the quantities
+item_sales = filtered_df.groupby('Grouped Item', as_index=False)['Qty'].sum()
+item_sales = item_sales.sort_values('Qty', ascending=False)
+
+# Create bar chart
+fig = px.bar(item_sales,
+             x='Grouped Item',
+             y='Qty',
+             title='Gift Shop Item Sales',
+             text='Qty',
+             color='Grouped Item')
+
+# Plot bar chart
+fig.update_layout(xaxis_title='Item', yaxis_title='Quantity Sold')
+st.plotly_chart(fig)
+
+# Plot 2a pie chart
+fig_pie = px.pie(
+    item_sales,
+    names='Grouped Item',
+    values='Qty',
+    title='Gift Shop Sales Distribution',
+    hole=0.3,  # Optional: Makes it a donut chart (set to 0 for normal pie)
+)
+
+# Improve label readability
+fig_pie.update_traces(
+    textposition='inside',
+    textinfo='percent+label',  # Show % and item name
+    insidetextorientation='radial'  # Better for crowded pies
+)
+
+# Display the pie chart
+st.plotly_chart(fig_pie)
+
 '''
 ---------------------------------------------------------------------------------------------------
 '''
@@ -366,82 +452,7 @@ with st.expander("View Data of Total Visitors:"):
     csv = visitors_by_day.to_csv(index=False).encode("utf-8")
     st.download_button("Download Data", data=csv, file_name="TotalVisitors.csv", mime="text/csv")
 
-# First filter the data
-filtered_df = df[
-    df['Category'].isin(['Gift Shop', 'None']) & 
-    (df['Item'].str.lower() != 'custom amount')
-].copy()
 
-# THEN convert Qty to numeric (after filtering)
-filtered_df['Qty'] = filtered_df['Qty'].astype(str)  # Ensure it's a string
-
-def convert_qty(qty_str):
-    try:
-        if '+' in qty_str:
-            return sum(float(x) for x in qty_str.split('+'))
-        return float(qty_str)
-    except:
-        return 0.0  # or np.nan
-
-filtered_df['Qty'] = filtered_df['Qty'].apply(convert_qty)  # Fix addition issue
-
-# Group items
-def group_items(name):
-    name = name.lower()
-    if "sticker" in name:
-        return "Stickers"
-    elif "zipper pull" in name:
-        return "Zipper Pulls"
-    elif "shirt" in name:
-        return "Shirts"
-    elif "stained glass" in name:
-        return "Stained Glass"
-    elif "magnet" in name:
-        return "Magnets"
-    elif "articulated sperm whale" in name:
-        return "Articulated Sperm Whale"
-    elif "guide pam" in name:
-        return "Guide Pamphlets"
-    else:
-        return name.title()
-
-# Filter
-filtered_df['Grouped Item'] = filtered_df['Item'].apply(group_items)
-
-# Sum up the quantities
-item_sales = filtered_df.groupby('Grouped Item', as_index=False)['Qty'].sum()
-item_sales = item_sales.sort_values('Qty', ascending=False)
-
-# Create bar chart
-fig = px.bar(item_sales,
-             x='Grouped Item',
-             y='Qty',
-             title='Gift Shop Item Sales',
-             text='Qty',
-             color='Grouped Item')
-
-# Plot bar chart
-fig.update_layout(xaxis_title='Item', yaxis_title='Quantity Sold')
-st.plotly_chart(fig)
-
-# Plot 2a pie chart
-fig_pie = px.pie(
-    item_sales,
-    names='Grouped Item',
-    values='Qty',
-    title='Gift Shop Sales Distribution',
-    hole=0.3,  # Optional: Makes it a donut chart (set to 0 for normal pie)
-)
-
-# Improve label readability
-fig_pie.update_traces(
-    textposition='inside',
-    textinfo='percent+label',  # Show % and item name
-    insidetextorientation='radial'  # Better for crowded pies
-)
-
-# Display the pie chart
-st.plotly_chart(fig_pie)
 
 # --- Define your visitor type columns ---
 visitor_type_columns = ['Babies (0-3yrs)', 'Child (4-12 yrs)', 'Youth (13-18 yrs)', 'Adult/ Seniors', 'Sponsors']
@@ -467,6 +478,46 @@ fig = px.bar(
 fig.update_layout(
     xaxis_title='Visitor Type',
     yaxis_title='Total Count',
+    xaxis_tickangle=-45
+)
+
+st.plotly_chart(fig)
+# --- Create graph for Total CAD over time using df1 ---
+
+# Let user choose grouping: Monthly or Yearly
+group_option = st.selectbox("Group by", ["Monthly", "Yearly"], key="group_by_sales")
+
+# Ensure 'Date' column is in datetime format
+df1['Date'] = pd.to_datetime(df1['Date'])
+
+# Clean 'Total CAD' column (remove $ and commas) and convert to float
+df1['Total CAD'] = df1['Total CAD'].replace('[\$,]', '', regex=True).astype(float)
+
+# Create 'Period' column based on grouping option
+if group_option == "Monthly":
+    df1['Period'] = df1['Date'].dt.to_period('M').astype(str)
+    title = "Total CAD by Month (Square Transactions)"
+elif group_option == "Yearly":
+    df1['Period'] = df1['Date'].dt.year.astype(str)
+    title = "Total CAD by Year (Square Transactions)"
+
+# Group and sum Total CAD
+sales_by_period = df1.groupby('Period')['Total CAD'].sum().reset_index()
+
+# Plot bar chart
+fig = px.bar(
+    sales_by_period,
+    x='Period',
+    y='Total CAD',
+    title=title,
+    labels={'Period': 'Time Period', 'Total CAD': 'Total CAD ($)'},
+    color='Total CAD',
+    text_auto='.2s'
+)
+
+fig.update_layout(
+    xaxis_title='Period',
+    yaxis_title='Total CAD ($)',
     xaxis_tickangle=-45
 )
 
