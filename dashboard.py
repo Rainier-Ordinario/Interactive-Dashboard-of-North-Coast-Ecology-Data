@@ -1,6 +1,6 @@
 # Interactive Dashboard for North Coast Ecology Centre
 # Author: Rainier Ordinario
-# Date: April 12, 2025
+# Date: May 1, 2025
 
 import streamlit as st
 import plotly.express as px  
@@ -101,7 +101,7 @@ st.markdown("""
 # --- Top Section ---
 st.markdown("""
     <div class="top-section">
-        <div class="top-text">Square Transactions</div>
+        <div class="top-text">Square Transactions Data</div>
     </div>
 """, unsafe_allow_html=True)
 
@@ -386,7 +386,7 @@ st.markdown("""
 # --- Top Section ---
 st.markdown("""
     <div class="top-section">
-        <div class="top-text">Original Transactions</div>
+        <div class="top-text">Manual Entry Data</div>
     </div>
 """, unsafe_allow_html=True)
 
@@ -471,7 +471,7 @@ with st.expander("View Data of Total Visitors:"):
 
 
 # --- Define your visitor type columns ---
-visitor_type_columns = ['Babies (0-3yrs)', 'Child (4-12 yrs)', 'Youth (13-18 yrs)', 'Adult/ Seniors', 'Sponsors']
+visitor_type_columns = ['Babies (0-3yrs)', 'Child (4-12 yrs)', 'Youth (13-18 yrs)', 'Adult/Seniors', 'Sponsors']
 
 # --- Melt the dataframe to a long format ---
 visitor_types_df = df1[visitor_type_columns].copy()
