@@ -404,6 +404,9 @@ df1 = df1[(df1["Date"] >= date1) & (df1["Date"] <= date2)].copy()
 # Define visitor categories
 visitor_categories = ['Total Visitors', 'Cruise', 'Local', 'Northwest BC', 'Other', 'D/n pay - Family Pass', 'Unwilling to pay/walked away']
 
+# Select visitor category
+selected_category = st.selectbox("Select visitor category", visitor_categories)
+
 # Define special event mappings (Display Text -> DataFrame Column)
 special_event_mapping = {
     'All Days': None,
@@ -414,19 +417,32 @@ special_event_mapping = {
     'Classroom Visits': 'Classroom Visits'
 }
 
-# Select visitor category
-selected_category = st.selectbox("Select visitor category", visitor_categories)
+# Initialize selected_event_display (for title usage later)
+selected_event_display = "All Days"  # Default value
 
-# User selects special event
-selected_event_display = st.selectbox("Filter by special event", list(special_event_mapping.keys()))
-selected_event_column = special_event_mapping[selected_event_display]
+# User selects special events (multiple allowed)
+selected_events_display = st.multiselect(
+    "Filter by special event(s)", 
+    options=list(special_event_mapping.keys()),
+    default=None
+)
 
-# Apply event filter
-if selected_event_column:
-    if selected_event_column in df1.columns:
-        df1 = df1[df1[selected_event_column] == 'Y']
-    else:
-        st.warning(f"Column '{selected_event_column}' not found in data!")
+# Apply event filters
+if selected_events_display:
+    # Update display variable for title
+    selected_event_display = ", ".join(selected_events_display) if len(selected_events_display) > 1 else selected_events_display[0]
+    
+    # Get corresponding column names
+    selected_event_columns = [special_event_mapping[event] for event in selected_events_display]
+    
+    # Filter logic (same as before)
+    valid_columns = [col for col in selected_event_columns if col in df1.columns]
+    if valid_columns:
+        filter_condition = df1[valid_columns].eq('Y').any(axis=1)
+        df1 = df1[filter_condition]
+
+# Later in your title code:
+title=f'{selected_category} by Day of the Week' + (f' ({selected_event_display})' if selected_event_display != "All Days" else '')
 
 # Group by Day of Week and sum based on selected category
 visitors_by_day = df1.groupby('Day of Week')[selected_category].sum().reset_index()
