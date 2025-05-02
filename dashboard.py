@@ -4,9 +4,7 @@
 
 import streamlit as st
 import plotly.express as px  
-import pandas as pd
-import matplotlib as plt   
-import os
+import pandas as pd 
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -17,6 +15,7 @@ st.title(":bar_chart: North Coast Ecology Centre Interactive Dashboard")
 # Reduce top padding
 st.markdown('<style>div.block-container{padding-top:2rem;}</style>',unsafe_allow_html=True)
 
+# Logo
 logo_link = "https://static.wixstatic.com/media/abc0c5_178bdd479f554ac799217ff7b61e3892~mv2.png/v1/fill/w_250,h_250,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/abc0c5_178bdd479f554ac799217ff7b61e3892~mv2.png"
 
 st.sidebar.markdown(
@@ -37,7 +36,7 @@ st.write("When uploading files: \n"
 # File upload section
 uploaded_files = st.file_uploader(":file_folder: Upload up to 2 files", type=["csv", "txt", "xlsx"], accept_multiple_files=True)
 
-# Fallback URLs
+# Initialize URLs
 url = 'https://raw.githubusercontent.com/Rainier-Ordinario/Interactive-Dashboard-of-North-Coast-Ecology-Data/refs/heads/main/Square%20Item%20Sale%20Transactions%202023-2024%20-%20Item%20Sales.csv'
 url1 = 'https://raw.githubusercontent.com/Rainier-Ordinario/Interactive-Dashboard-of-North-Coast-Ecology-Data/refs/heads/dev/Daily%20Admissions%20and%20Cash%20Deposits%202023%20and%202024%20-%20Original%20Values.csv'
 
@@ -98,7 +97,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- Top Section ---
+# Square Transactions Data Label
 st.markdown("""
     <div class="top-section">
         <div class="top-text">Square Transactions Data</div>
@@ -111,7 +110,7 @@ df_merge = pd.concat([df, df1], ignore_index=True)
 # Ensure 'Date' column exists and is in datetime format
 df_merge["Date"] = pd.to_datetime(df_merge["Date"], errors='coerce')
 
-#---Sidebar---
+# Sidebar time filter
 st.sidebar.header("Choose your filter: ")
 
 # Allow users to select a date
@@ -146,21 +145,20 @@ with col2:
 # Filter data based on seleted date range
 df = df[(df["Date"] >= date1) & (df["Date"] <= date2)].copy()
 
-# 1. Get unique categories + "All"
+# Get unique categories + "All"
 categories = df['Category'].dropna().unique().tolist()
 categories.sort()
 categories.insert(0, "All")  # Insert "All" at the top
 
-# 2. Category selector
+# Category selector
 selected_category = st.selectbox("Select a category", categories)
 
-# 3. Apply filter
+# Apply filter
 if selected_category != "All":
     filtered_df = df[df['Category'] == selected_category]
 else:
     filtered_df = df.copy()
 
-#TIME COLUMN
 # Convert Time column to datetime if not already
 filtered_df['Time'] = filtered_df['Time'].str.replace(r':(am|pm)', r' \1', case=False, regex=True)
 filtered_df['Time'] = pd.to_datetime(filtered_df['Time'], format='%I:%M %p')
@@ -185,8 +183,6 @@ with st.expander("View Data of Hourly Counts:"):
     csv = hourly_counts[['Hour Label', 'Transaction Count']].to_csv(index=False).encode("utf-8")
     st.download_button('Download Data', data=csv, file_name="HourlyCounts.csv", mime='text/csv')
 
-# --- Apply Filters ---
-# Filter by date range
 # Filter data based on the selected date range by converting the selected dates to Pandas Timestamps
 filtered_df = df[(df["Date"] >= pd.Timestamp(startDate)) & 
                  (df["Date"] <= pd.Timestamp(endDate))].copy()
@@ -195,7 +191,6 @@ filtered_df = df[(df["Date"] >= pd.Timestamp(startDate)) &
 if selected_category != "All":
     filtered_df = filtered_df[filtered_df["Category"] == selected_category]
 
-# --- Aggregate Data: Busiest Days ---
 # Extract day of the week from the Date.
 filtered_df["Day"] = filtered_df["Date"].dt.day_name()
 
@@ -216,7 +211,7 @@ if not day_counts.empty:
 else:
     st.write("No data available for the selected filters.")
 
-# --- Data Download Option ---
+# Download data option
 with st.expander("View Data of Daily Counts:"):
     st.dataframe(day_counts.style.background_gradient(cmap="Greens"))
     csv = day_counts.to_csv(index=False).encode("utf-8")
@@ -259,7 +254,7 @@ fig.update_layout(
 
 st.plotly_chart(fig)
 
-# Optional: ensure 'Payment Method' column exists
+# Ensure 'Payment Method' column exists
 if 'Payment Method' in df.columns:
     # Count each payment method
     payment_counts = df['Payment Method'].value_counts().reset_index()
@@ -282,7 +277,7 @@ filtered_df = df[
     (df['Item'].str.lower() != 'custom amount')
 ].copy()
 
-# THEN convert Qty to numeric (after filtering)
+# Then convert Qty to numeric (after filtering)
 filtered_df['Qty'] = filtered_df['Qty'].astype(str)  # Ensure it's a string
 
 def convert_qty(qty_str):
@@ -334,7 +329,7 @@ fig = px.bar(item_sales,
 fig.update_layout(xaxis_title='Item', yaxis_title='Quantity Sold')
 st.plotly_chart(fig)
 
-# Plot 2a pie chart
+# Plot pie chart
 fig_pie = px.pie(
     item_sales,
     names='Grouped Item',
@@ -383,14 +378,12 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- Top Section ---
+# Manual Entry Data Label (Brandie's Values)
 st.markdown("""
     <div class="top-section">
         <div class="top-text">Manual Entry Data</div>
     </div>
 """, unsafe_allow_html=True)
-
-# Use Brandie's Values
 
 # Convert Date column to datetime
 df1['Date'] = pd.to_datetime(df1['Date'])
@@ -462,25 +455,23 @@ fig = px.bar(visitors_by_day,
 
 st.plotly_chart(fig)
 
-# --- Data Download Option ---
+# Download data option
 with st.expander("View Data of Total Visitors:"):
     st.dataframe(visitors_by_day.style.background_gradient(cmap="Greens"))
     csv = visitors_by_day.to_csv(index=False).encode("utf-8")
     st.download_button("Download Data", data=csv, file_name="TotalVisitors.csv", mime="text/csv")
 
-
-
-# --- Define your visitor type columns ---
+# Initialize visitor type columns 
 visitor_type_columns = ['Babies (0-3yrs)', 'Child (4-12 yrs)', 'Youth (13-18 yrs)', 'Adult/Seniors', 'Sponsors']
 
-# --- Melt the dataframe to a long format ---
+# Melt the dataframe to a long format 
 visitor_types_df = df1[visitor_type_columns].copy()
 visitor_types_melted = visitor_types_df.melt(var_name='Visitor Type', value_name='Count')
 
-# --- Group and sum counts ---
+# Group and sum counts
 visitor_types_summary = visitor_types_melted.groupby('Visitor Type')['Count'].sum().reset_index()
 
-# --- Plot a bar chart ---
+# Plot bar chart
 fig = px.bar(
     visitor_types_summary,
     x='Visitor Type',
@@ -498,8 +489,8 @@ fig.update_layout(
 )
 
 st.plotly_chart(fig)
-# --- Create graph for Total CAD over time using df1 ---
 
+# Create graph for Total CAD over time 
 # Let user choose grouping: Monthly or Yearly
 group_option = st.selectbox("Group by", ["Monthly", "Yearly"], key="group_by_sales")
 
