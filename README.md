@@ -23,7 +23,7 @@ This dashboard supports data-driven decision-making by integrating Square transa
 ## ⚙️ Tech Stack
 
 - **Frontend & App Logic**: Streamlit
-- **Data Processing & Analysis**: Pandas, NumPy
+- **Data Processing & Analysis**: Pandas
 - **Visualization**: Plotly
 - **Deployment**:
   - AWS EC2 (Dockerized)
