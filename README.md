@@ -26,5 +26,5 @@ This dashboard supports data-driven decision-making by integrating Square transa
 - **Data Processing & Analysis**: Python (Pandas)
 - **Visualization**: Plotly
 - **Deployment**:
-  - AWS EC2 (Dockerized)
   - Streamlit Community Cloud (Streamlit Share)
+  - AWS EC2 (Dockerized)
