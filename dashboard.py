@@ -437,7 +437,7 @@ if selected_events_display:
 # Later in your title code:
 title=f'{selected_category} by Day of the Week' + (f' ({selected_event_display})' if selected_event_display != "All Days" else '')
 
-# Group by Day of Week and sum based on selected category
+# Group by Day of Week and group sum based on selected category
 visitors_by_day = df1.groupby('Day of Week')[selected_category].sum().reset_index()
 
 # Sort days properly
