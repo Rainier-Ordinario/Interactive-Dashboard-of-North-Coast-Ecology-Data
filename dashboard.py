@@ -29,9 +29,7 @@ st.sidebar.markdown(
     unsafe_allow_html=True
 )
 
-st.write("When uploading files: \n"
-         "1. Upload square file first, \n"
-         "2. Upload admission file second")
+st.caption("Upload Square data first, then Admissions data. If no files are uploaded, default data will be used.")
 
 # File upload section
 uploaded_files = st.file_uploader(":file_folder: Upload up to 2 files", type=["csv", "txt", "xlsx"], accept_multiple_files=True)
