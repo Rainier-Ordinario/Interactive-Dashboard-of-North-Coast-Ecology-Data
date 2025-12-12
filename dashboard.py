@@ -118,22 +118,26 @@ col1, col2 = st.sidebar.columns((2))
 df["Date"] = pd.to_datetime(df["Date"])
 
 # Set initial values
-startDate = pd.to_datetime("2023-01-01").date()
-endDate = pd.to_datetime("2024-12-31").date()
+df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
 
-col_buttons = st.sidebar.columns(3)
+min_year = df["Date"].dt.year.min()
+max_year = df["Date"].dt.year.max()
 
-if col_buttons[0].button("2023"):
-    startDate = pd.to_datetime("2023-01-01").date()
-    endDate = pd.to_datetime("2023-12-31").date()
+startDate = pd.Timestamp(f"{min_year}-01-01").date()
+endDate = pd.Timestamp(f"{max_year}-12-31").date()
 
-if col_buttons[1].button("2024"):
-    startDate = pd.Timestamp("2024-01-01").date()
-    endDate = pd.Timestamp("2024-12-31").date()
+years = list(range(min_year, max_year + 1))
 
-if col_buttons[2].button("All"):
-    startDate = pd.Timestamp("2022-01-01").date()
-    endDate = pd.Timestamp("2100-12-31").date()
+col_buttons = st.sidebar.columns(len(years) + 1)
+
+for i, year in enumerate(years):
+    if col_buttons[i].button(str(year)):
+        startDate = pd.Timestamp(f"{year}-01-01").date()
+        endDate = pd.Timestamp(f"{year}-12-31").date()
+
+if col_buttons[-1].button("All"):
+    startDate = pd.Timestamp(f"{min_year}-01-01").date()
+    endDate = pd.Timestamp(f"{max_year}-12-31").date()
 
 # Allow user to select a time frame 
 with col1:
