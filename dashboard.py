@@ -163,13 +163,14 @@ if selected_category != "All":
 else:
     filtered_df = df.copy()
 
-# Convert Time column to datetime if not already
-filtered_df['Time'] = filtered_df['Time'].str.replace(r':(am|pm)', r' \1', case=False, regex=True)
-filtered_df['Time'] = pd.to_datetime(filtered_df['Time'], format='%I:%M %p')
+# Convert Time column to datetime (handles 12h, 24h, and mixed formats)
+filtered_df['Time'] = pd.to_datetime(filtered_df['Time'], errors='coerce')
 
-# Extract hour and format for label
+# Extract hour
 filtered_df['Hour'] = filtered_df['Time'].dt.hour
-filtered_df['Hour Label'] = filtered_df['Time'].dt.strftime('%I:00 %p')  # e.g., 01:00 PM
+
+# Create formatted hour labels (01:00 PM, etc.)
+filtered_df['Hour Label'] = filtered_df['Time'].dt.strftime('%I:00 %p')
 
 # Group by hour and get counts
 hourly_counts = filtered_df.groupby(['Hour', 'Hour Label']).size().reset_index(name='Transaction Count')
