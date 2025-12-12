@@ -62,11 +62,9 @@ if uploaded_files:
 # Fallback to URLs if files aren't uploaded
 if df is None:
     df = pd.read_csv(url, encoding="ISO-8859-1")
-    st.write("Loaded: Square Item Sale Transactions 2023/2024")
 
 if df1 is None:
     df1 = pd.read_csv(url1, encoding="ISO-8859-1")
-    st.write("Loaded: Daily Admission and Cash Deposits 2023/2024")
     
 # Add custom CSS to set different background colors
 st.markdown("""
@@ -115,27 +113,28 @@ st.sidebar.header("Choose your filter: ")
 col1, col2 = st.sidebar.columns((2))
 df["Date"] = pd.to_datetime(df["Date"])
 
-# Set initial values
+# ---- Year buttons based ONLY on uploaded dataset ----
 df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
 
-min_year = df["Date"].dt.year.min()
-max_year = df["Date"].dt.year.max()
+available_years = sorted(
+    df["Date"].dt.year.dropna().unique().astype(int)
+)
 
-startDate = pd.Timestamp(f"{min_year}-01-01").date()
-endDate = pd.Timestamp(f"{max_year}-12-31").date()
+# Default range = full dataset
+startDate = pd.Timestamp(f"{available_years[0]}-01-01").date()
+endDate = pd.Timestamp(f"{available_years[-1]}-12-31").date()
 
-years = list(range(min_year, max_year + 1))
+col_buttons = st.sidebar.columns(len(available_years) + 1)
 
-col_buttons = st.sidebar.columns(len(years) + 1)
-
-for i, year in enumerate(years):
+for i, year in enumerate(available_years):
     if col_buttons[i].button(str(year)):
         startDate = pd.Timestamp(f"{year}-01-01").date()
         endDate = pd.Timestamp(f"{year}-12-31").date()
 
 if col_buttons[-1].button("All"):
-    startDate = pd.Timestamp(f"{min_year}-01-01").date()
-    endDate = pd.Timestamp(f"{max_year}-12-31").date()
+    startDate = pd.Timestamp(f"{available_years[0]}-01-01").date()
+    endDate = pd.Timestamp(f"{available_years[-1]}-12-31").date()
+
 
 # Allow user to select a time frame 
 with col1:
@@ -162,7 +161,41 @@ else:
     filtered_df = df.copy()
 
 # Convert Time column to datetime (handles 12h, 24h, and mixed formats)
-filtered_df['Time'] = pd.to_datetime(filtered_df['Time'], errors='coerce')
+def parse_time_flexible(time_str):
+    if pd.isna(time_str):
+        return pd.NaT
+    
+    time_str = str(time_str).strip()
+    
+    # Try 12-hour format first (e.g., "9:50:pm" or "9:50 PM")
+    try:
+        return pd.to_datetime(time_str, format='%I:%M:%p')
+    except:
+        pass
+    
+    try:
+        return pd.to_datetime(time_str, format='%I:%M %p')
+    except:
+        pass
+    
+    # Try 24-hour format (e.g., "16:44:25")
+    try:
+        return pd.to_datetime(time_str, format='%H:%M:%S')
+    except:
+        pass
+    
+    try:
+        return pd.to_datetime(time_str, format='%H:%M')
+    except:
+        pass
+    
+    # Last resort: let pandas figure it out
+    try:
+        return pd.to_datetime(time_str)
+    except:
+        return pd.NaT
+
+filtered_df['Time'] = filtered_df['Time'].apply(parse_time_flexible)
 
 # Extract hour
 filtered_df['Hour'] = filtered_df['Time'].dt.hour
@@ -187,8 +220,8 @@ with st.expander("View Data of Hourly Counts:"):
     st.download_button('Download Data', data=csv, file_name="HourlyCounts.csv", mime='text/csv')
 
 # Filter data based on the selected date range by converting the selected dates to Pandas Timestamps
-filtered_df = df[(df["Date"] >= pd.Timestamp(startDate)) & 
-                 (df["Date"] <= pd.Timestamp(endDate))].copy()
+df_filtered_by_date = df[(df["Date"] >= date1) & (df["Date"] <= date2)].copy()
+
 
 # Filter by category if not "All"
 if selected_category != "All":
