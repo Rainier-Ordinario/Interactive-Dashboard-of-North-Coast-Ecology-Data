@@ -38,24 +38,31 @@ uploaded_files = st.file_uploader(":file_folder: Upload up to 2 files", type=["c
 url = 'https://raw.githubusercontent.com/Rainier-Ordinario/Interactive-Dashboard-of-North-Coast-Ecology-Data/refs/heads/main/Square%20Item%20Sale%20Transactions%202023-2024%20-%20Item%20Sales.csv'
 url1 = 'https://raw.githubusercontent.com/Rainier-Ordinario/Interactive-Dashboard-of-North-Coast-Ecology-Data/refs/heads/dev/Daily%20Admissions%20and%20Cash%20Deposits%202023%20and%202024%20-%20Original%20Values.csv'
 
-# Initialize dataframes
-df, df1 = None, None
+# Load default data from URLs first
+df = pd.read_csv(url, encoding="ISO-8859-1")
+df1 = pd.read_csv(url1, encoding="ISO-8859-1")
 
-# Handle file uploads
+# Handle file uploads - append to existing data
 if uploaded_files:
     if len(uploaded_files) >= 1:
         file1 = uploaded_files[0]
         if file1.name.endswith(".csv") or file1.name.endswith(".txt"):
-            df = pd.read_csv(file1, encoding="ISO-8859-1")
+            df_new = pd.read_csv(file1, encoding="ISO-8859-1")
         elif file1.name.endswith(".xlsx"):
-            df = pd.read_excel(file1)
+            df_new = pd.read_excel(file1)
+        
+        # Append new data to existing default data
+        df = pd.concat([df, df_new], ignore_index=True)
 
     if len(uploaded_files) == 2:
         file2 = uploaded_files[1]
         if file2.name.endswith(".csv") or file2.name.endswith(".txt"):
-            df1 = pd.read_csv(file2, encoding="ISO-8859-1")
+            df1_new = pd.read_csv(file2, encoding="ISO-8859-1")
         elif file2.name.endswith(".xlsx"):
-            df1 = pd.read_excel(file2)
+            df1_new = pd.read_excel(file2)
+        
+        # Append new data to existing default data
+        df1 = pd.concat([df1, df1_new], ignore_index=True)
         
 # Fallback to URLs if files aren't uploaded
 if df is None:
