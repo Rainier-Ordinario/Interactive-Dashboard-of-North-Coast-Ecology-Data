@@ -49,7 +49,6 @@ if uploaded_files:
             df = pd.read_csv(file1, encoding="ISO-8859-1")
         elif file1.name.endswith(".xlsx"):
             df = pd.read_excel(file1)
-        st.write(f"Loaded: {file1.name}")
 
     if len(uploaded_files) == 2:
         file2 = uploaded_files[1]
@@ -57,8 +56,7 @@ if uploaded_files:
             df1 = pd.read_csv(file2, encoding="ISO-8859-1")
         elif file2.name.endswith(".xlsx"):
             df1 = pd.read_excel(file2)
-        st.write(f"Loaded: {file2.name}")
-
+        
 # Fallback to URLs if files aren't uploaded
 if df is None:
     df = pd.read_csv(url, encoding="ISO-8859-1")
@@ -266,7 +264,7 @@ elif group_option == "Yearly":
 
 
 # Clean 'Net Sales' column (remove $ and commas) and convert to float
-filtered_df['Net Sales'] = filtered_df['Net Sales'].replace('[\$,]', '', regex=True).astype(float)
+filtered_df['Net Sales'] = filtered_df['Net Sales'].replace('[\\$,]', '', regex=True).astype(float)
 
 # Group and sum net sales
 sales_by_period = filtered_df.groupby('Period')['Net Sales'].sum().reset_index()
