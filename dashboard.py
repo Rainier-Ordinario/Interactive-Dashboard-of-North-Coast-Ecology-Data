@@ -496,33 +496,37 @@ with st.expander("View Data of Total Visitors:"):
     st.download_button("Download Data", data=csv, file_name="TotalVisitors.csv", mime="text/csv")
 
 # Initialize visitor type columns 
-visitor_type_columns = ['Babies (0-3yrs)', 'Child (4-12 yrs)', 'Youth (13-18 yrs)', 'Adult/Seniors', 'Sponsors']
+all_visitor_type_columns = ['Babies (0-3yrs)', 'Child (4-12 yrs)', 'Youth (13-18 yrs)', 'Adult/Seniors', 'Sponsors']
+visitor_type_columns = [col for col in all_visitor_type_columns if col in df1.columns]
 
-# Melt the dataframe to a long format 
-visitor_types_df = df1[visitor_type_columns].copy()
-visitor_types_melted = visitor_types_df.melt(var_name='Visitor Type', value_name='Count')
+if visitor_type_columns:
+    # Melt the dataframe to a long format 
+    visitor_types_df = df1[visitor_type_columns].copy()
+    visitor_types_melted = visitor_types_df.melt(var_name='Visitor Type', value_name='Count')
 
-# Group and sum counts
-visitor_types_summary = visitor_types_melted.groupby('Visitor Type')['Count'].sum().reset_index()
+    # Group and sum counts
+    visitor_types_summary = visitor_types_melted.groupby('Visitor Type')['Count'].sum().reset_index()
 
-# Plot bar chart
-fig = px.bar(
-    visitor_types_summary,
-    x='Visitor Type',
-    y='Count',
-    color='Visitor Type',
-    title='Total Visitors by Type',
-    labels={'Count': 'Number of Visitors'},
-    text_auto='.2s'
-)
+    # Plot bar chart
+    fig = px.bar(
+        visitor_types_summary,
+        x='Visitor Type',
+        y='Count',
+        color='Visitor Type',
+        title='Total Visitors by Type',
+        labels={'Count': 'Number of Visitors'},
+        text_auto='.2s'
+    )
 
-fig.update_layout(
-    xaxis_title='Visitor Type',
-    yaxis_title='Total Count',
-    xaxis_tickangle=-45
-)
+    fig.update_layout(
+        xaxis_title='Visitor Type',
+        yaxis_title='Total Count',
+        xaxis_tickangle=-45
+    )
 
-st.plotly_chart(fig)
+    st.plotly_chart(fig)
+else:
+    st.warning("⚠️ Visitor type columns not found in admissions data.")
 
 # Create graph for Total CAD over time 
 # Let user choose grouping: Monthly or Yearly
