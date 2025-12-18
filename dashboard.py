@@ -532,7 +532,7 @@ group_option = st.selectbox("Group by", ["Monthly", "Yearly"], key="group_by_sal
 df1['Date'] = pd.to_datetime(df1['Date'])
 
 # Clean 'Total CAD' column and convert to float
-df1['Total CAD'] = df1['Total CAD'].replace('[\$,]', '', regex=True).astype(float)
+df1['Total CAD'] = df1['Total CAD'].replace(r'[\$,]', '', regex=True).astype(float)
 
 # Create 'Period' column based on grouping option
 if group_option == "Monthly":
