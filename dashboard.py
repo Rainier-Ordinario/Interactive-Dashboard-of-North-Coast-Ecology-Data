@@ -1,6 +1,6 @@
 # Interactive Dashboard for North Coast Ecology Centre
 # Author: Rainier Ordinario
-# Date: May 1, 2025
+# Date: December 20, 2025
 
 import streamlit as st
 import plotly.express as px  
@@ -41,7 +41,7 @@ url_2025 = 'https://raw.githubusercontent.com/Rainier-Ordinario/Interactive-Dash
 
 # Daily Admissions and Cash Deposit Files
 url1_2023_2024 = 'https://raw.githubusercontent.com/Rainier-Ordinario/Interactive-Dashboard-of-North-Coast-Ecology-Data/refs/heads/main/Daily%20Admissions%20and%20Cash%20Deposits%202023%20and%202024%20-%20Original%20Values.csv'
-url1_2025 = 'https://raw.githubusercontent.com/Rainier-Ordinario/Interactive-Dashboard-of-North-Coast-Ecology-Data/refs/heads/main/Daily%20Admissions%202025.csv'
+url1_2025 = 'https://raw.githubusercontent.com/Rainier-Ordinario/Interactive-Dashboard-of-North-Coast-Ecology-Data/refs/heads/main/Daily%20Admissions%20and%20Cash%20Deposits%202025.csv'
 
 # Load all default data from URLs
 df_2023_2024 = pd.read_csv(url_2023_2024, encoding="ISO-8859-1")
