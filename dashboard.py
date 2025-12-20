@@ -34,15 +34,25 @@ st.caption("Upload Square data first, then Admissions data. If no files are uplo
 # File upload section
 uploaded_files = st.file_uploader(":file_folder: Upload up to 2 files", type=["csv", "txt", "xlsx"], accept_multiple_files=True)
 
-# Initialize URLs
-url = 'https://raw.githubusercontent.com/Rainier-Ordinario/Interactive-Dashboard-of-North-Coast-Ecology-Data/refs/heads/main/Square%20Item%20Sale%20Transactions%202023-2024%20-%20Item%20Sales.csv'
-url1 = 'https://raw.githubusercontent.com/Rainier-Ordinario/Interactive-Dashboard-of-North-Coast-Ecology-Data/refs/heads/dev/Daily%20Admissions%20and%20Cash%20Deposits%202023%20and%202024%20-%20Original%20Values.csv'
+# Initialize URLs - now loading all years by default
+# Square Transaction Files
+url_2023_2024 = 'https://raw.githubusercontent.com/Rainier-Ordinario/Interactive-Dashboard-of-North-Coast-Ecology-Data/refs/heads/main/Square%20Item%20Sale%20Transactions%202023-2024%20-%20Item%20Sales.csv'
+url_2025 = 'https://raw.githubusercontent.com/Rainier-Ordinario/Interactive-Dashboard-of-North-Coast-Ecology-Data/refs/heads/main/Square%20Item%20Sale%20Transactions%202025.csv'
 
-# Load default data from URLs first
-df = pd.read_csv(url, encoding="ISO-8859-1")
-df1 = pd.read_csv(url1, encoding="ISO-8859-1")
+# Daily Admissions and Cash Deposit Files
+url1_2023_2024 = 'https://raw.githubusercontent.com/Rainier-Ordinario/Interactive-Dashboard-of-North-Coast-Ecology-Data/refs/heads/main/Daily%20Admissions%20and%20Cash%20Deposits%202023%20and%202024%20-%20Original%20Values.csv'
+url1_2025 = 'https://raw.githubusercontent.com/Rainier-Ordinario/Interactive-Dashboard-of-North-Coast-Ecology-Data/refs/heads/main/Daily%20Admissions%202025.csv'
 
-# Handle file uploads - append to existing data
+# Load all default data from URLs
+df_2023_2024 = pd.read_csv(url_2023_2024, encoding="ISO-8859-1")
+df_2025 = pd.read_csv(url_2025, encoding="ISO-8859-1")
+df = pd.concat([df_2023_2024, df_2025], ignore_index=True)
+
+df1_2023_2024 = pd.read_csv(url1_2023_2024, encoding="ISO-8859-1")
+df1_2025 = pd.read_csv(url1_2025, encoding="ISO-8859-1")
+df1 = pd.concat([df1_2023_2024, df1_2025], ignore_index=True)
+
+# Handle file uploads - append to existing data (if they want to add even more data)
 if uploaded_files:
     if len(uploaded_files) >= 1:
         file1 = uploaded_files[0]
@@ -51,7 +61,6 @@ if uploaded_files:
         elif file1.name.endswith(".xlsx"):
             df_new = pd.read_excel(file1)
         
-        # Append new data to existing default data
         df = pd.concat([df, df_new], ignore_index=True)
 
     if len(uploaded_files) == 2:
@@ -61,15 +70,7 @@ if uploaded_files:
         elif file2.name.endswith(".xlsx"):
             df1_new = pd.read_excel(file2)
         
-        # Append new data to existing default data
         df1 = pd.concat([df1, df1_new], ignore_index=True)
-        
-# Fallback to URLs if files aren't uploaded
-if df is None:
-    df = pd.read_csv(url, encoding="ISO-8859-1")
-
-if df1 is None:
-    df1 = pd.read_csv(url1, encoding="ISO-8859-1")
     
 # Add custom CSS to set different background colors
 st.markdown("""
